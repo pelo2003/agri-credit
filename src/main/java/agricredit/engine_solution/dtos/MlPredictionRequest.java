@@ -4,12 +4,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-@Data // This automatically generates ALL getters, setters, toString, and equals/hashCode!
-@NoArgsConstructor // Generates an empty constructor
-@AllArgsConstructor // Generates a constructor with all fields
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class MlPredictionRequest {
     private double ndviScore;
     private double historicalRainfall;
     private double farmSizeHectares;
     private double historicalYield;
+
+    // --- NEW FIELDS FOR THE AI TO ASSESS RISK ---
+    private int farmingExperienceYears; // More experience = lower risk
+    private boolean hasCropInsurance;   // Has insurance = much lower risk
 }

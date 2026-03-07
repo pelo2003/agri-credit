@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder // <-- ADDED THIS so you can use Loan.builder() in your Service
 public class Loan {
 
     @Id
@@ -28,6 +29,17 @@ public class Loan {
 
     // Status: PENDING, APPROVED, DISBURSED, REJECTED
     private String status;
+
+    // --- NEW REAL-WORLD BANKING FIELDS ---
+
+    @Column(name = "loan_purpose")
+    private String loanPurpose;
+
+    @Column(name = "expected_off_taker")
+    private String expectedOffTaker;
+
+    @Column(name = "has_crop_insurance")
+    private Boolean hasCropInsurance;
 
     private LocalDateTime createdAt;
 

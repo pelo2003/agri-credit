@@ -36,6 +36,14 @@ public class Farmer {
     @Column(columnDefinition = "geometry(Point, 4326)")
     private Point farmLocation;
 
+    // --- NEW REAL-WORLD BANKING FIELDS ---
+
+    @Column(name = "land_ownership_type")
+    private String landOwnershipType; // e.g., "99-Year Lease", "Offer Letter"
+
+    @Column(name = "farming_experience_years")
+    private Integer farmingExperienceYears; // e.g., 5, 10
+
     private LocalDateTime registeredAt;
 
     @PrePersist

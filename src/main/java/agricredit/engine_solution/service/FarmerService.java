@@ -25,7 +25,6 @@ public class FarmerService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
-    // --- CREATE ---
     @Transactional
     public Farmer createFarmer(FarmerRequest request) {
         Farmer farmer = new Farmer();
@@ -35,6 +34,10 @@ public class FarmerService {
         farmer.setPhoneNumber(request.getPhoneNumber());
         farmer.setPrimaryCrop(request.getPrimaryCrop());
         farmer.setFarmSizeHectares(request.getFarmSizeHectares());
+
+        // --- NEW FIELDS ---
+        farmer.setLandOwnershipType(request.getLandOwnershipType());
+        farmer.setFarmingExperienceYears(request.getFarmingExperienceYears());
 
         if (request.getLongitude() != null && request.getLatitude() != null) {
             farmer.setFarmLocation(geometryFactory.createPoint(new Coordinate(request.getLongitude(), request.getLatitude())));
@@ -52,18 +55,15 @@ public class FarmerService {
         return savedFarmer;
     }
 
-    // --- READ (ALL) ---
     public List<Farmer> getAllFarmers() {
         return farmerRepository.findAll();
     }
 
-    // --- READ (BY ID) ---
     public Farmer getFarmerById(Long id) {
         return farmerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Farmer not found with id: " + id));
     }
 
-    // --- UPDATE ---
     @Transactional
     public Farmer updateFarmer(Long id, FarmerRequest request) {
         Farmer existingFarmer = getFarmerById(id);
@@ -73,6 +73,10 @@ public class FarmerService {
         existingFarmer.setPhoneNumber(request.getPhoneNumber());
         existingFarmer.setPrimaryCrop(request.getPrimaryCrop());
         existingFarmer.setFarmSizeHectares(request.getFarmSizeHectares());
+
+        // --- NEW FIELDS ---
+        existingFarmer.setLandOwnershipType(request.getLandOwnershipType());
+        existingFarmer.setFarmingExperienceYears(request.getFarmingExperienceYears());
 
         if (request.getLongitude() != null && request.getLatitude() != null) {
             existingFarmer.setFarmLocation(geometryFactory.createPoint(new Coordinate(request.getLongitude(), request.getLatitude())));

@@ -14,99 +14,100 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Service
-@RequiredArgsConstructor // Lombok generates the constructor for injected fields automatically!
+@RequiredArgsConstructor
 public class LoanService {
 
-    // Using constructor injection via Lombok fixes those yellow "never assigned" warnings
     private final FarmerRepository farmerRepository;
     private final LoanRepository loanRepository;
     private final CreditAssessmentRepository assessmentRepository;
     private final SatelliteService satelliteService;
-    private final CreditService creditService;
+
+    // Inject the ML Integration directly to use the new Risk Algorithm!
+    private final MlIntegrationService mlIntegrationService;
 
     @Transactional
     public LoanResponse processLoanApplication(LoanRequest request) {
 
-        // 1. Identify the Farmer
         Farmer farmer = farmerRepository.findById(request.getFarmerId())
                 .orElseThrow(() -> new RuntimeException("Farmer not found in system."));
 
-        // 2. Fetch "Space" Data
         Double ndvi = satelliteService.fetchNdviIndex(farmer.getFarmLocation());
+        boolean hasInsurance = request.getHasCropInsurance() != null ? request.getHasCropInsurance() : false;
 
-        // 3. Crunch the Financial Numbers using the new AI Engine!
-        // NOTE: We are using some placeholder values (100.0, 5.0, 2.0) for weather/yield
-        // until you connect those to actual database fields or APIs.
-        BigDecimal interestRate = creditService.processAiCreditAssessment(
-                ndvi,
-                100.0, // Mock historical rainfall
-                5.0,   // Mock farm size in hectares
-                2.0,   // Mock historical yield
-                farmer.getPrimaryCrop()
+        // --- 1. CALL THE SMART RISK ALGORITHM ---
+        // (Updated to match the new 3-parameter Hybrid AI signature)
+        Map<String, Object> riskAssessment = mlIntegrationService.assessLoanRisk(
+                farmer,
+                request.getAmount().doubleValue(),
+                ndvi
         );
 
-        // For logging purposes, let's derive a basic risk score based on the interest rate
-        // (Since a 5% rate = 100 score, and 25% rate = 0 score based on your formula)
-        double derivedRiskScore = (25.0 - interestRate.doubleValue()) / 0.2;
+        // --- 2. EXTRACT THE AI'S DECISION ---
+        Double creditScore = (Double) riskAssessment.get("creditScore");
+        String status = (String) riskAssessment.get("status");
+        Double interestRateDouble = (Double) riskAssessment.get("interestRate");
+        BigDecimal interestRate = BigDecimal.valueOf(interestRateDouble);
+        String reason = (String) riskAssessment.get("reason");
 
-        // 4. Log the AI Assessment for Audit Purposes
+        // --- 3. LOG THE ASSESSMENT FOR THE BANK ---
         CreditAssessment assessment = CreditAssessment.builder()
                 .farmer(farmer)
                 .ndviIndex(ndvi)
-                .riskScore(derivedRiskScore)
-                .recommendation(derivedRiskScore > 50 ? "APPROVE" : "REJECT - HIGH RISK")
+                .riskScore(creditScore)
+                .recommendation(status + " - " + reason)
                 .build();
         assessmentRepository.save(assessment);
 
-        // 5. Issue the Loan Record
-        Loan loan = new Loan();
-        loan.setFarmer(farmer);
-        loan.setPrincipalAmount(request.getAmount());
-        loan.setDurationMonths(request.getDurationMonths());
-        loan.setInterestRate(interestRate);
-        loan.setStatus(derivedRiskScore > 50 ? "APPROVED" : "REJECTED");
+        // --- 4. CREATE THE LOAN (REJECTED OR PENDING) ---
+        Loan loan = Loan.builder()
+                .farmer(farmer)
+                .principalAmount(request.getAmount())
+                .durationMonths(request.getDurationMonths())
+                .interestRate(interestRate)
+                .loanPurpose(request.getLoanPurpose())
+                .expectedOffTaker(request.getExpectedOffTaker())
+                .hasCropInsurance(hasInsurance)
+                .status(status) // Now uses "PENDING" or "REJECTED"
+                .build();
+
         loan = loanRepository.save(loan);
 
-        // 6. Return a Clean Response to the Flutter App
+        // --- 5. RETURN RESPONSE TO FLUTTER APP ---
         return LoanResponse.builder()
                 .loanId(loan.getId())
                 .farmerName(farmer.getFirstName() + " " + farmer.getLastName())
                 .principal(loan.getPrincipalAmount())
                 .interestRate(loan.getInterestRate())
-                .creditScore(derivedRiskScore)
+                .creditScore(creditScore)
                 .status(loan.getStatus())
+                .loanPurpose(loan.getLoanPurpose())
+                .expectedOffTaker(loan.getExpectedOffTaker())
+                .rejectionReason(reason) // Shows the farmer exactly why!
                 .build();
     }
-    // ... (Keep your existing processLoanApplication method above this) ...
 
-    // --- READ (ALL) ---
     public List<Loan> getAllLoans() {
         return loanRepository.findAll();
     }
 
-    // --- READ (BY ID) ---
     public Loan getLoanById(Long id) {
         return loanRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Loan not found with id: " + id));
     }
 
-    // --- READ (BY FARMER ID) ---
-    // (This is highly recommended so a farmer only sees their own loans!)
     public List<Loan> getLoansByFarmerId(Long farmerId) {
         Farmer farmer = farmerRepository.findById(farmerId)
                 .orElseThrow(() -> new RuntimeException("Farmer not found"));
         return loanRepository.findByFarmer(farmer);
-        // Note: You may need to add List<Loan> findByFarmer(Farmer farmer); to your LoanRepository!
     }
 
-    // --- UPDATE (Status Only) ---
     @Transactional
     public Loan updateLoanStatus(Long id, String newStatus) {
         Loan loan = getLoanById(id);
         loan.setStatus(newStatus);
         return loanRepository.save(loan);
     }
-
 }

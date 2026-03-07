@@ -13,4 +13,10 @@ public class LoanResponse {
     private BigDecimal interestRate;
     private Double creditScore;
     private String status;
+
+    private String loanPurpose;
+    private String expectedOffTaker;
+
+    // --- NEW FIELD FOR TRANSPARENCY ---
+    private String rejectionReason;
 }
