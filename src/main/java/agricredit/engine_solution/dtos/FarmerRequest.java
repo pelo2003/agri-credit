@@ -10,8 +10,10 @@ public class FarmerRequest {
     private String phoneNumber;
     private String primaryCrop;
     private Double farmSizeHectares;
-    private Double longitude;
-    private Double latitude;
+
+    // --- THE FIX: We removed Lat/Lon and added province ---
+    private String province;
+
     private String password;
 
     // --- NEW REAL-WORLD BANKING FIELDS ---

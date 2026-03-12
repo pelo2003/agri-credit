@@ -6,9 +6,6 @@ import agricredit.engine_solution.entity.User;
 import agricredit.engine_solution.repository.FarmerRepository;
 import agricredit.engine_solution.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +20,8 @@ public class FarmerService {
     private final FarmerRepository farmerRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+
+    // Notice: We removed the GeometryFactory because we don't need it anymore!
 
     @Transactional
     public Farmer createFarmer(FarmerRequest request) {
@@ -35,16 +33,16 @@ public class FarmerService {
         farmer.setPrimaryCrop(request.getPrimaryCrop());
         farmer.setFarmSizeHectares(request.getFarmSizeHectares());
 
-        // --- NEW FIELDS ---
         farmer.setLandOwnershipType(request.getLandOwnershipType());
         farmer.setFarmingExperienceYears(request.getFarmingExperienceYears());
 
-        if (request.getLongitude() != null && request.getLatitude() != null) {
-            farmer.setFarmLocation(geometryFactory.createPoint(new Coordinate(request.getLongitude(), request.getLatitude())));
-        }
+        // --- THE NEW PROVINCE FIELD ---
+        farmer.setProvince(request.getProvince());
+
         farmer.setRegisteredAt(LocalDateTime.now());
         Farmer savedFarmer = farmerRepository.save(farmer);
 
+        // Create the user login credentials automatically
         User user = new User();
         user.setNationalId(request.getNationalId());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -74,13 +72,11 @@ public class FarmerService {
         existingFarmer.setPrimaryCrop(request.getPrimaryCrop());
         existingFarmer.setFarmSizeHectares(request.getFarmSizeHectares());
 
-        // --- NEW FIELDS ---
         existingFarmer.setLandOwnershipType(request.getLandOwnershipType());
         existingFarmer.setFarmingExperienceYears(request.getFarmingExperienceYears());
 
-        if (request.getLongitude() != null && request.getLatitude() != null) {
-            existingFarmer.setFarmLocation(geometryFactory.createPoint(new Coordinate(request.getLongitude(), request.getLatitude())));
-        }
+        // --- THE NEW PROVINCE FIELD ---
+        existingFarmer.setProvince(request.getProvince());
 
         return farmerRepository.save(existingFarmer);
     }

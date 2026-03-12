@@ -1,14 +1,26 @@
 package agricredit.engine_solution.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class MlPredictionResponse {
-    private double predictedCreditScore;
-    private String riskCategory;
-    private double defaultProbability;
+
+    @JsonProperty("credit_score")
+    private Double creditScore;
+
+    @JsonProperty("risk_tier")
+    private String riskTier;
+
+    @JsonProperty("recommended_loan_limit")
+    private Double recommendedLoanLimit;
+
+    @JsonProperty("confidence")
+    private Double confidence;
 }

@@ -2,7 +2,6 @@ package agricredit.engine_solution.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.locationtech.jts.geom.Point;
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,9 +31,9 @@ public class Farmer {
 
     private Double farmSizeHectares;
 
-    // The core PostGIS integration: SRID 4326 is standard GPS (WGS84)
-    @Column(columnDefinition = "geometry(Point, 4326)")
-    private Point farmLocation;
+    // --- THE FIX: Removed the PostGIS geometry annotation! ---
+    // It is now just a standard text column in the database.
+    private String province;
 
     // --- NEW REAL-WORLD BANKING FIELDS ---
 

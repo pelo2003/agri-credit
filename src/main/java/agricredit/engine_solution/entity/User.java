@@ -12,6 +12,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String phoneNumber; // Used to verify their identity during reset
+
+    @Column(columnDefinition = "integer default 0")
+    private int failedLoginAttempts = 0;
+
     @Column(unique = true, nullable = false)
     private String nationalId; // Used as the username
 
