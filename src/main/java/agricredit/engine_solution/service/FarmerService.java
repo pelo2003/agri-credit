@@ -44,7 +44,9 @@ public class FarmerService {
         User user = new User();
         user.setNationalId(request.getNationalId());
         user.setPhoneNumber(request.getPhoneNumber());
-        user.setPassword(passwordEncoder.encode(request.getPin()));
+
+        // --- UPDATED THIS LINE TO GET PASSWORD ---
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole("ROLE_FARMER");
 
         // Link the user to the farmer profile

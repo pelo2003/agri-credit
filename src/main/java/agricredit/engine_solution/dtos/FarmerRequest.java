@@ -14,7 +14,7 @@ public class FarmerRequest {
     private String province;
     private String district;
 
-    private String pin; // <-- CHANGED from password to pin
+    private String password; // <-- Changed back to password
 
     private String landOwnershipType;
     private Integer farmingExperienceYears;

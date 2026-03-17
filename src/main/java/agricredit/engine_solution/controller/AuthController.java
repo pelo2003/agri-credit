@@ -30,7 +30,7 @@ public class AuthController {
         }
 
         // 2. Verify PIN
-        if (!passwordEncoder.matches(authRequest.getPin(), user.getPassword())) {
+        if (!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
             user.setFailedLoginAttempts(user.getFailedLoginAttempts() + 1);
             userRepository.save(user);
 
