@@ -12,7 +12,7 @@ public class FarmerRequest {
     private Double farmSizeHectares;
 
     private String province;
-    private String district; // <-- ADDED DISTRICT
+    private String district;
 
     private String pin; // <-- CHANGED from password to pin
 
