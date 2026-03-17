@@ -35,6 +35,8 @@ public class Farmer {
     // It is now just a standard text column in the database.
     private String province;
 
+    private String district; // <-- ADDED THIS
+
     // --- NEW REAL-WORLD BANKING FIELDS ---
 
     @Column(name = "land_ownership_type")

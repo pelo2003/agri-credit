@@ -21,8 +21,6 @@ public class FarmerService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    // Notice: We removed the GeometryFactory because we don't need it anymore!
-
     @Transactional
     public Farmer createFarmer(FarmerRequest request) {
         Farmer farmer = new Farmer();
@@ -36,8 +34,8 @@ public class FarmerService {
         farmer.setLandOwnershipType(request.getLandOwnershipType());
         farmer.setFarmingExperienceYears(request.getFarmingExperienceYears());
 
-        // --- THE NEW PROVINCE FIELD ---
         farmer.setProvince(request.getProvince());
+        farmer.setDistrict(request.getDistrict());
 
         farmer.setRegisteredAt(LocalDateTime.now());
         Farmer savedFarmer = farmerRepository.save(farmer);
@@ -45,9 +43,14 @@ public class FarmerService {
         // Create the user login credentials automatically
         User user = new User();
         user.setNationalId(request.getNationalId());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setPassword(passwordEncoder.encode(request.getPin()));
         user.setRole("ROLE_FARMER");
+
+        // Link the user to the farmer profile
         user.setFarmer(savedFarmer);
+
+        // --- THE CRITICAL FIX: You must save the user! ---
         userRepository.save(user);
 
         return savedFarmer;
@@ -75,8 +78,10 @@ public class FarmerService {
         existingFarmer.setLandOwnershipType(request.getLandOwnershipType());
         existingFarmer.setFarmingExperienceYears(request.getFarmingExperienceYears());
 
-        // --- THE NEW PROVINCE FIELD ---
         existingFarmer.setProvince(request.getProvince());
+
+        // --- MINOR FIX: Don't forget to update the district too ---
+        existingFarmer.setDistrict(request.getDistrict());
 
         return farmerRepository.save(existingFarmer);
     }

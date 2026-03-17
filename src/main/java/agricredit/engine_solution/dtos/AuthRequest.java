@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 public class AuthRequest {
-    @NotBlank(message = "National ID is required")
-    private String nationalId;
+    @NotBlank(message = "Phone number is required")
+    private String phoneNumber;
 
-    @NotBlank(message = "Password is required")
-    private String password;
+    @NotBlank(message = "PIN is required")
+    private String pin;
 }

@@ -21,39 +21,33 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody AuthRequest authRequest) {
-        // 1. Check if user exists
-        User user = userRepository.findByNationalId(authRequest.getNationalId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        // 1. Check if user exists BY PHONE NUMBER
+        User user = userRepository.findByPhoneNumber(authRequest.getPhoneNumber())
+                .orElseThrow(() -> new RuntimeException("User not found with this phone number"));
 
-        // 2. Check if account is already locked (3 or more failed attempts)
         if (user.getFailedLoginAttempts() >= 3) {
             return ResponseEntity.status(403).body("ACCOUNT_LOCKED_RESET_REQUIRED");
         }
 
-        // 3. Verify password
-        if (!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
-
-            // Increment the fail counter and save to database
+        // 2. Verify PIN
+        if (!passwordEncoder.matches(authRequest.getPin(), user.getPassword())) {
             user.setFailedLoginAttempts(user.getFailedLoginAttempts() + 1);
             userRepository.save(user);
 
-            // Check if this was their 3rd strike
             if (user.getFailedLoginAttempts() >= 3) {
                 return ResponseEntity.status(403).body("ACCOUNT_LOCKED_RESET_REQUIRED");
             }
-
-            // Tell them how many tries they have left
             int attemptsLeft = 3 - user.getFailedLoginAttempts();
-            return ResponseEntity.status(401).body("Invalid credentials. Attempts remaining: " + attemptsLeft);
+            return ResponseEntity.status(401).body("Invalid PIN. Attempts remaining: " + attemptsLeft);
         }
 
-        // 4. Success! Reset failed attempts back to 0
+        // 3. Success!
         user.setFailedLoginAttempts(0);
         userRepository.save(user);
 
-        // 5. Generate token
-        String token = jwtService.generateToken(user.getNationalId());
-        return ResponseEntity.ok(new AuthResponse(token, user.getNationalId()));
+        // 4. Generate token using Phone Number
+        String token = jwtService.generateToken(user.getPhoneNumber());
+        return ResponseEntity.ok(new AuthResponse(token, user.getPhoneNumber()));
     }
 
     // --- NEW ENDPOINT: FORGOT/RESET PASSWORD ---

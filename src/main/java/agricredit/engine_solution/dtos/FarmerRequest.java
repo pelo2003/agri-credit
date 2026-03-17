@@ -11,16 +11,11 @@ public class FarmerRequest {
     private String primaryCrop;
     private Double farmSizeHectares;
 
-    // --- THE FIX: We removed Lat/Lon and added province ---
     private String province;
+    private String district; // <-- ADDED DISTRICT
 
-    private String password;
+    private String pin; // <-- CHANGED from password to pin
 
-    // --- NEW REAL-WORLD BANKING FIELDS ---
-
-    // Proof of Land (e.g., "99-Year Lease", "Offer Letter", "Communal")
     private String landOwnershipType;
-
-    // Farming History (Character/Ability in CAMPARI)
     private Integer farmingExperienceYears;
 }
