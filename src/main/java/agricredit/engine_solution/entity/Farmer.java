@@ -2,11 +2,14 @@ package agricredit.engine_solution.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.locationtech.jts.geom.Point;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "farmers")
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -36,6 +39,9 @@ public class Farmer {
     private String province;
 
     private String district; // <-- ADDED THIS
+
+    @Column(columnDefinition = "geometry(Point,4326)")
+    private Point farmLocation;
 
     // --- NEW REAL-WORLD BANKING FIELDS ---
 
