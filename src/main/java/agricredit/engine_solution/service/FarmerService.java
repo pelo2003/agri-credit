@@ -45,14 +45,13 @@ public class FarmerService {
         user.setNationalId(request.getNationalId());
         user.setPhoneNumber(request.getPhoneNumber());
 
-        // --- UPDATED THIS LINE TO GET PASSWORD ---
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        // FIX: use pin instead of password
+        user.setPassword(passwordEncoder.encode(request.getPin()));
         user.setRole("ROLE_FARMER");
 
         // Link the user to the farmer profile
         user.setFarmer(savedFarmer);
 
-        // --- THE CRITICAL FIX: You must save the user! ---
         userRepository.save(user);
 
         return savedFarmer;
@@ -81,8 +80,6 @@ public class FarmerService {
         existingFarmer.setFarmingExperienceYears(request.getFarmingExperienceYears());
 
         existingFarmer.setProvince(request.getProvince());
-
-        // --- MINOR FIX: Don't forget to update the district too ---
         existingFarmer.setDistrict(request.getDistrict());
 
         return farmerRepository.save(existingFarmer);
