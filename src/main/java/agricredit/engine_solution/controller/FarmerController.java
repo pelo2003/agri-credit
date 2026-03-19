@@ -1,7 +1,7 @@
 package agricredit.engine_solution.controller;
 
 import agricredit.engine_solution.dtos.FarmerRequest;
-import agricredit.engine_solution.entity.Farmer;
+import agricredit.engine_solution.dtos.FarmerResponse;
 import agricredit.engine_solution.service.FarmerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,22 +17,22 @@ public class FarmerController {
     private final FarmerService farmerService;
 
     @PostMapping
-    public ResponseEntity<Farmer> createFarmer(@RequestBody FarmerRequest request) {
+    public ResponseEntity<FarmerResponse> createFarmer(@RequestBody FarmerRequest request) {
         return ResponseEntity.ok(farmerService.createFarmer(request));
     }
 
     @GetMapping
-    public ResponseEntity<List<Farmer>> getAllFarmers() {
+    public ResponseEntity<List<FarmerResponse>> getAllFarmers() {
         return ResponseEntity.ok(farmerService.getAllFarmers());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Farmer> getFarmerById(@PathVariable Long id) {
+    public ResponseEntity<FarmerResponse> getFarmerById(@PathVariable Long id) {
         return ResponseEntity.ok(farmerService.getFarmerById(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Farmer> updateFarmer(@PathVariable Long id, @RequestBody FarmerRequest request) {
+    public ResponseEntity<FarmerResponse> updateFarmer(@PathVariable Long id, @RequestBody FarmerRequest request) {
         return ResponseEntity.ok(farmerService.updateFarmer(id, request));
     }
 }
